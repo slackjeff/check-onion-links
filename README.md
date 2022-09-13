@@ -1,5 +1,10 @@
 # check-onion-links
 
+## Help
+consider adding onion service on onion.links to help. It is not allowed in any way to add harmful content such as (pornograph*, drug*, weapon*) etc.
+To help, send pull request =)
+
+
 ## Files
 * onion.links    = CSV File with (Name of onion service | small description | URL.onion)
 * check_onion.sh = Script that checks onion.links and generate static page on /var/www/html/onion.html
