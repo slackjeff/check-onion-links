@@ -28,15 +28,17 @@ html_final="/var/www/html/onion.html"
 proxy_and_port="127.0.0.1:9050"
 
 #================= | CHECK |
-# all software installed on the system?
-# Need torsocks for run on tor and...
-# httping "ping" .onion urls ;)
+# Do you have all needed software installed on the system?
+# - Tor
+# - cURL
 ###########################################
-for checkMe in 'tor' 'httping'; do
-    if ! type $checkMe 1>/dev/null 2>/dev/null; then
-        printf '%s\n' "You need $checkMe for continue."
-        exit 1
-    fi
+
+needed_binaries=('tor' 'curl')
+for current_binary in "${needed_binaries[@]}"; do
+	if ! type $current_binary 1>/dev/null 2>/dev/null; then
+		printf '%s\n' "You need $current_binary installed in your system to continue."
+		exit 1
+	fi
 done
 
 #================= | FUNCTIONS |
@@ -92,7 +94,11 @@ while read -r line; do
     site_url=$(echo $line | cut -d '|' -f '3')
     printf "\e[34;1m\t+ Scanning $site_name\e[m"
     # CHECK ONION SERVICE
-    if httping -f -c 1 --proxy=$proxy_and_port "$site_url" 1>/dev/null 2>/dev/null; then
+    # It sends HEAD method/verb to the target URL through 
+    # Tor using socks5 proxy. It also waits for 10s before
+    # giving timeout. 
+    # Moreover, it accepts self-signed certificate to avoid false negative.
+    if curl -kI --connect-timeout 10 --socks5-hostname $proxy_and_port "$site_url" 1>/dev/null 2>/dev/null; then
         printf "\e[32;1m\t+ [ON]\e[m\n"
         echo "<li><strong><a href=$site_url>$site_name</a> $site_url <b style='color: #0ec600;'>ONLINE</b></strong></li>" >> $html_temp_file
     else
